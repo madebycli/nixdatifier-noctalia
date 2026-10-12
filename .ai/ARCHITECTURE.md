@@ -16,6 +16,8 @@ The desktop-independent Python backend separates target configuration, personal 
 action planning, subprocesses, cache/locks, history, generations, flakes, health and tools.
 Read requests use JSON API v1. Dynamic process inputs use argv. Terminal jobs own a
 cross-process mutation lock, private logs and failure-aware command sequencing.
+Read-only probes use isolated process groups. Interactive jobs retain the terminal's
+controlling session so sudo and script input work; output is streamed and logged.
 
 Target identity is {id, kind, flake, attribute, host, adapter, profile}. No singleton
 system flake. Generic actions verify output host identity before activation. Foreign

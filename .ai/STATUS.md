@@ -19,9 +19,10 @@ Existing update/build/sync/cleanup commands retain their guards and prompts.
 
 Theme binding uses native controls, role tokens, global radius, panel borders,
 transparency and inherited fonts/scaling. Real host/compositor QA is pending.
-Local 40-test suite passes. Nix builds, Luau compilation and native lint are delegated
-to CI; consult [[TESTS]] for observed results. The initial package/Luau stage
-passed; the terminal-session correction requires fresh backend/package verification. No real system action was run here.
+Local 40-test suite passes. Nix package build, Luau compilation, all 40 tests and
+packaged CLI smoke passed in CI run 38218542439 for eadf36c6374101b93717c96a1b6d3f12368469d9.
+This includes the controlling-terminal correction. Native Noctalia lint is still
+in progress in earlier runs; consult [[TESTS]]. No real system action was run here.
 
 master baseline: 4847af59fc57196a727ce8d706ea7da625399eba.
 No stable version snapshot or GitHub release has been created.

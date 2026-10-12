@@ -21,3 +21,7 @@ updated: 2026-10-12
 - D006: Keep system inputs and user profile packages distinct; permit multiple flakes.
 - D007: No stable or full upstream-parity claim before real validation. Advanced upstream
   tools are explicit optional tasks, rather than silently copied into a monolith.
+- D008: Isolate read-only process groups, but retain controlling tty for interactive
+  jobs. A real pseudo-terminal regression test verifies prompt/input and output capture.
+- D009: Backend-only CI changes do not rebuild Noctalia for unchanged frontend/native
+  lint inputs. Native source changes and stable releases still run native lint.
