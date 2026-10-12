@@ -54,6 +54,7 @@
             cp -r ${self} source
             chmod -R u+w source
             cd source
+            patchShebangs bin
             export PYTHONPATH="$PWD/backend"
             export NIXDATIFIER_LUA=${pkgs.lua5_4}/bin/lua
             python3 -m unittest discover -s tests -v
