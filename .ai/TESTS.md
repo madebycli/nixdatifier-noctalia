@@ -45,6 +45,14 @@ Optimization review regression coverage:
   pipes cannot extend a read request's deadline.
 - Malformed target kinds/adapters/config roots and saved-state profiles are rejected/skipped.
 
-The optimization pass passes 45 local tests; its Nix/Luau/native CI is pending publication.
+Optimization source ee2946f9378db8c607d8756c25233c5a51b7c17f:
+run 38223056672 passes Nix package build, all 45 tests and Luau compilation.
+Native Noctalia lint is in progress; the CLI smoke step is pending.
+https://github.com/madebycli/nixdatifier-noctalia/actions/runs/38223056672
+
+The first optimization run 38222832023 failed only the new direct checkout-installer
+test because /usr/bin/env is absent in the Nix build sandbox. The package itself built.
+The corrected test derivation patches checkout shebangs before invoking the scripts;
+the replacement run above passes the installer regression as well.
 Current authoritative verification lives in master-context's projects/nixdatifier-noctalia/TESTS.md.
 Actual host/UI/theme acceptance remains a required check before stable.

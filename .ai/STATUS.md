@@ -24,7 +24,9 @@ Review split panel lifecycle/controller/layout and bounded live read-only output
 Production Python/Luau modules remain below 250 lines; the largest is 135 lines.
 Native Noctalia lint passed in full CI runs 38217124145 and 38218204416.
 Baseline main d812a374 also passed package/tests/Luau/CLI in run 38218982211.
-The optimization pass's CI is pending; consult [[TESTS]]. No real system action was run here.
+Optimization source ee2946f9378db8c607d8756c25233c5a51b7c17f passes Nix package,
+45 tests and Luau compilation in CI run 38223056672. Native lint is in progress;
+consult [[TESTS]]. No real system action was run here.
 
 master baseline: 4847af59fc57196a727ce8d706ea7da625399eba.
 No stable version snapshot or GitHub release has been created.

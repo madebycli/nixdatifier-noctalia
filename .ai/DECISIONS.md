@@ -32,3 +32,6 @@ updated: 2026-10-12
 - D011: Bound read-only output while the process runs, with concurrent pipe draining.
   Do not accumulate unbounded temporary files and check their size only after exit.
   Preserve interactive tty behavior and incrementally decode UTF-8 job output.
+
+- D012: Checkout scripts retain executable Git modes; patch their interpreters in the
+  Nix test copy before direct execution, matching the package's normal fixup behavior.

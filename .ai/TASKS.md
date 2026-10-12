@@ -27,7 +27,8 @@ Implemented:
 Before first stable:
 - [x] Observe green Nix package, 40 tests, Luau compilation and CLI smoke for eadf36c6.
 - [x] Native Noctalia lint passed in full runs 38217124145 and 38218204416.
-- [ ] Observe the optimization pass's package, Luau and native lint CI checks.
+- [x] Optimization pass: Nix package, 45 tests and Luau compilation pass in run 38223056672.
+- [ ] Observe optimization pass's native lint and packaged CLI smoke completion.
 - [ ] Test actual installed Noctalia on nyx and aether.
 - [ ] Verify native layout, small screens, scale, light/dark/custom palette and reduced animation.
 - [ ] Exercise a second flake, standalone Home Manager and separate user-profile packages.
