@@ -1,0 +1,11 @@
+[[plugin]]
+id = "madebycli/nixdatifier-noctalia"
+name = "Nixdatifier"
+version = "0.1.0"
+plugin_api = 26
+author = "madebycli"
+license = "MIT"
+icon = "snowflake"
+description = "Nix systems, profiles and development environments in Noctalia."
+tags = ["nix", "nixos", "system"]
+dependencies = ["nixdatifier-noctalia"]

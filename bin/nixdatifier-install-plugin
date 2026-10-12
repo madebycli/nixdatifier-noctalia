@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+plugin_source='@pluginPath@'
+if [[ "$plugin_source" == '@'* ]]; then
+  plugin_source="$(cd -- "$(dirname -- "$0")/../nixdatifier-noctalia" && pwd)"
+fi
+data_root="${NOCTALIA_DATA_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/noctalia}"
+plugin_destination="$data_root/plugins/nixdatifier-noctalia"
+mkdir -p -- "$(dirname -- "$plugin_destination")"
+if [[ -e "$plugin_destination" || -L "$plugin_destination" ]]; then
+  if [[ "$(readlink -f -- "$plugin_destination")" == "$plugin_source" ]]; then
+    printf 'Plugin already registered: %s\n' "$plugin_destination"
+    exit 0
+  fi
+  printf 'Existing plugin preserved: %s\nRemove or move it explicitly before installing this copy.\n' "$plugin_destination" >&2
+  exit 1
+fi
+ln -s -- "$plugin_source" "$plugin_destination"
+printf 'Registered: %s\nEnable with: noctalia msg plugins enable madebycli/nixdatifier-noctalia\n' "$plugin_destination"

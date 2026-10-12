@@ -1,0 +1,24 @@
+schema_version: 1
+project_id: nixdatifier-noctalia
+entrypoint: INDEX.md
+nodes:
+  - {id: index, path: INDEX.md, type: index}
+  - {id: status, path: STATUS.md, type: status}
+  - {id: architecture, path: ARCHITECTURE.md, type: architecture}
+  - {id: sources, path: SOURCES.md, type: provenance}
+  - {id: decisions, path: DECISIONS.md, type: decisions}
+  - {id: tasks, path: TASKS.md, type: tasks}
+  - {id: tests, path: TESTS.md, type: tests}
+  - {id: risks, path: RISKS.md, type: risks}
+edges:
+  - {from: index, to: status, relation: current-state}
+  - {from: index, to: architecture, relation: design}
+  - {from: index, to: sources, relation: evidence}
+  - {from: architecture, to: decisions, relation: rationale}
+  - {from: status, to: tasks, relation: remaining-work}
+  - {from: tasks, to: tests, relation: acceptance}
+  - {from: decisions, to: risks, relation: constraints}
+cross_project:
+  - project_id: nix-config
+    entrypoint: projects/nix-config/INDEX.md
+    relation: personal-host-and-command-contract

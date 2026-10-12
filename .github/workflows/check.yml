@@ -1,0 +1,24 @@
+name: Check
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Backend tests, UI contracts, Luau compilation and package
+        run: nix flake check --print-build-logs
+      - name: Native Noctalia manifest and settings lint
+        run: nix run github:noctalia-dev/noctalia/546ec1cd6f6ca6c93e2995043a7b89f43ff14ceb -- plugins lint ./nixdatifier-noctalia
+      - name: CLI smoke check
+        run: nix run . -- --version

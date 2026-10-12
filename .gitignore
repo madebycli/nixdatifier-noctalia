@@ -1,24 +1,5 @@
-.claude/
-readme/opendesktop
-
-# Build artifacts
-*.plasmoid
-notes.md
-
-# Nix
-result
-.direnv/
-.envrc
-
-# Editor junk
-*~
-*.swp
-.idea/
-.vscode/
-
-# System junk
-.DS_Store
-
-# Python test caches
 __pycache__/
-*.py[cod]
+*.pyc
+result
+result-*
+.direnv/

@@ -1,0 +1,24 @@
+{
+  "source_repo": "madebycli/nix-config",
+  "source_rev": "0fa08bfa4ed06f55c9c6c901e1ab08acb1101e71",
+  "nixosConfigurations": [
+    "nyx",
+    "nyx-mango",
+    "nyx-niri",
+    "nyx-hyprland",
+    "nyx-hyprland-caelestia",
+    "nyx-mango-niri",
+    "nyx-mango-hyprland",
+    "nyx-niri-hyprland",
+    "nyx-all",
+    "aether",
+    "aether-mango",
+    "aether-niri",
+    "aether-hyprland",
+    "aether-hyprland-caelestia",
+    "aether-mango-niri",
+    "aether-mango-hyprland",
+    "aether-niri-hyprland",
+    "aether-all"
+  ]
+}

@@ -1,194 +1,77 @@
 {
-  description = "Nixdatifier — NixOS generations, package diffs, flake updates and dev environments as a tray app, a KDE Plasma 6 widget and a Quickshell panel";
-
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  description = "Native Noctalia Nix management with explicit multi-flake targets";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
 
   outputs = { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
-      forAllSystems = nixpkgs.lib.genAttrs systems;
+      each = nixpkgs.lib.genAttrs systems;
       pkgsFor = system: nixpkgs.legacyPackages.${system};
-
-      metadata = builtins.fromJSON (builtins.readFile ./package/metadata.json);
-      pluginId = metadata.KPlugin.Id;   # org.muddyblack.nixosGenerationExplorer
-      version  = metadata.KPlugin.Version;
-    in
-    {
-      # ── installable package ────────────────────────────────────────────────
-      packages = forAllSystems (system:
-        let
-          pkgs = pkgsFor system;
-          runtime = with pkgs; [ bash nix jq git curl coreutils util-linux findutils gnugrep gnused gawk inotify-tools libnotify polkit ];
-          runtimePath = pkgs.lib.makeBinPath runtime;
-          tray = pkgs.qt6.callPackage ./tray/package.nix { inherit version; };
-          # The desktop-independent app: a window and a tray icon, no Plasma or
-          # Quickshell needed. Works on any distribution that has Nix.
-          nixdatifier = pkgs.qt6.callPackage ./standalone/package.nix {
-            inherit version;
-            src = pkgs.lib.fileset.toSource {
-              root = ./.;
-              fileset = pkgs.lib.fileset.unions [ ./standalone ./tray ./package ];
-            };
+      packageFor = system:
+        let pkgs = pkgsFor system;
+        in pkgs.stdenvNoCC.mkDerivation {
+          pname = "nixdatifier-noctalia";
+          version = "0.1.0";
+          src = self;
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          dontConfigure = true;
+          dontBuild = true;
+          installPhase = ''
+            runHook preInstall
+            mkdir -p "$out/lib" "$out/share/noctalia/plugins" "$out/bin"
+            cp -r backend/nixdatifier "$out/lib/"
+            cp -r nixdatifier-noctalia "$out/share/noctalia/plugins/"
+            makeWrapper ${pkgs.python3}/bin/python3 "$out/bin/nixdatifier-noctalia" \
+              --add-flags "-m nixdatifier.cli" \
+              --prefix PYTHONPATH : "$out/lib" \
+              --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [ bash nix git coreutils systemd direnv util-linux sudo nixos-rebuild-ng ])}
+            substitute bin/nixdatifier-install-plugin "$out/bin/nixdatifier-install-plugin" \
+              --subst-var-by pluginPath "$out/share/noctalia/plugins/nixdatifier-noctalia"
+            chmod +x "$out/bin/nixdatifier-install-plugin"
+            runHook postInstall
+          '';
+          meta = {
+            description = "Nix targets and tools for native Noctalia";
+            license = pkgs.lib.licenses.mit;
+            platforms = systems;
+            mainProgram = "nixdatifier-noctalia";
           };
-        in
-        {
-          inherit tray nixdatifier;
-          hyprland = pkgs.stdenvNoCC.mkDerivation {
-            pname = "nixdatifier-hyprland";
-            inherit version;
-            src = ./.;
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-            dontConfigure = true;
-            dontBuild = true;
-            installPhase = ''
-              runHook preInstall
-              dest="$out/share/nixdatifier"
-              mkdir -p "$dest" "$out/bin"
-              cp -r package hyprland shell.qml "$dest/"
-              cat > "$out/bin/nixdatifier-hyprland" <<SCRIPT
-              #!${pkgs.bash}/bin/bash
-              set -euo pipefail
-              export PATH=${runtimePath}:\$PATH
-              export QT_QUICK_CONTROLS_STYLE=Fusion
-              runtime_dir="\''${XDG_RUNTIME_DIR:-/tmp}/nixdatifier-\$USER"
-              mkdir -p "\$runtime_dir"
-              chmod 700 "\$runtime_dir"
-              # A previous session may have died mid-operation; don't let the tray start from its state.
-              rm -f "\$runtime_dir/status.json"
-              ${tray}/bin/nixdatifier-tray ${pkgs.quickshell}/bin/qs "$dest" "\$runtime_dir/status.json" "$dest/package/icon-emblem.svg" &
-              tray_pid=\$!
-              trap 'kill "\$tray_pid" 2>/dev/null || true' EXIT
-              ${pkgs.quickshell}/bin/qs --no-duplicate --path "$dest" "\$@"
-              SCRIPT
-              chmod +x "$out/bin/nixdatifier-hyprland"
-              wrapProgram "$out/bin/nixdatifier-hyprland" \
-                --prefix NIXPKGS_QT6_QML_IMPORT_PATH : "${pkgs.kdePackages.kirigami.unwrapped}/lib/qt-6/qml"
-              runHook postInstall
-            '';
-            meta.mainProgram = "nixdatifier-hyprland";
-            meta.platforms = pkgs.lib.platforms.linux;
-          };
-          default = pkgs.stdenvNoCC.mkDerivation {
-            pname   = "nixos-generation-explorer";
-            inherit version;
-            src = ./package;
-
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-            dontConfigure = true;
-            dontBuild     = true;
-
-            installPhase = ''
-              runHook preInstall
-
-              # Install plasmoid package
-              plasmoid="$out/share/plasma/plasmoids/${pluginId}"
-              mkdir -p "$plasmoid"
-              cp -r . "$plasmoid/"
-              for helper in "$plasmoid"/contents/tools/sh/*; do
-                if [ -f "$helper" ] && [ -x "$helper" ]; then
-                  wrapProgram "$helper" --prefix PATH : ${runtimePath}
-                fi
-              done
-
-              # Register icon in hicolor theme so Plasma Widget Explorer picks it up
-              mkdir -p "$out/share/icons/hicolor/256x256/apps"
-              cp icon.png "$out/share/icons/hicolor/256x256/apps/${pluginId}.png"
-
-              runHook postInstall
-            '';
-
-            meta = with pkgs.lib; {
-              description  = metadata.KPlugin.Description;
-              longDescription = ''
-                A KDE Plasma 6 widget for NixOS users. Provides a visual generation
-                timeline, package diffs between generations (nix store diff-closures),
-                one-click rollback/boot actions via pkexec, flake update tracking, and
-                a secrets browser — all from the desktop panel.
-              '';
-              license   = licenses.mit;
-              platforms = platforms.linux;
-              homepage  = metadata.KPlugin.Website;
-              maintainers = [ ];
-            };
-          };
+        };
+    in {
+      packages = each (system: {
+        default = packageFor system;
+        backend = packageFor system;
+      });
+      apps = each (system: {
+        default = { type = "app"; program = "${packageFor system}/bin/nixdatifier-noctalia"; };
+      });
+      checks = each (system:
+        let pkgs = pkgsFor system;
+        in {
+          tests = pkgs.runCommand "nixdatifier-tests" {
+            nativeBuildInputs = [ pkgs.python3 pkgs.lua5_4 pkgs.luau ];
+          } ''
+            cp -r ${self} source
+            chmod -R u+w source
+            cd source
+            export PYTHONPATH="$PWD/backend"
+            export NIXDATIFIER_LUA=${pkgs.lua5_4}/bin/lua
+            python3 -m unittest discover -s tests -v
+            for file in $(find nixdatifier-noctalia -name '*.luau'); do
+              luau-compile "$file" >/dev/null
+            done
+            mkdir -p "$out"
+          '';
+          package = packageFor system;
         });
-
-      # ── `nix run .#view` — preview widget with plasmoidviewer ─────────────
-      apps = forAllSystems (system:
-        let pkgs = pkgsFor system; in
-        {
-          # `nix run github:Muddyblack/nixdatifier`
-          default = self.apps.${system}.nixdatifier;
-          nixdatifier = {
-            type = "app";
-            program = "${self.packages.${system}.nixdatifier}/bin/nixdatifier";
-          };
-          hyprland = {
-            type = "app";
-            program = "${self.packages.${system}.hyprland}/bin/nixdatifier-hyprland";
-          };
-          view = {
-            type = "app";
-            program = toString (pkgs.writeShellScript "view" ''
-              export PATH=${pkgs.lib.makeBinPath [ pkgs.kdePackages.plasma-sdk ]}:"$PATH"
-              # Let the wrapped viewer supply its matching Qt plugins instead
-              # of inheriting a different version from the desktop session.
-              unset QML2_IMPORT_PATH QML_IMPORT_PATH QT_PLUGIN_PATH QT_QPA_PLATFORM_PLUGIN_PATH NIXPKGS_QT6_QML_IMPORT_PATH
-              export NIXPKGS_QT6_QML_IMPORT_PATH=${pkgs.lib.makeSearchPath "lib/qt-6/qml" (with pkgs.kdePackages; [ plasma-desktop plasma-workspace kdeclarative kitemmodels ])}
-              export QT_STYLE_OVERRIDE=Fusion
-              export XDG_DATA_DIRS=${pkgs.kdePackages.plasma-desktop}/share:${pkgs.kdePackages.plasma-sdk}/share:"''${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-              exec plasmoidviewer \
-                -a "$PWD/package" -f "''${1:-planar}"
-            '');
-          };
-          pack = {
-            type = "app";
-            program = toString (pkgs.writeShellScript "pack" ''
-              set -euo pipefail
-              here="$PWD"
-              ver="$(grep -oE '"Version":[[:space:]]*"[^"]+"' "$here/package/metadata.json" | head -1 | sed -E 's/.*"([^"]+)"$/\1/')"
-              name="$(basename "$here")"
-              out="$here/$name-$ver.plasmoid"
-              rm -f "$out"
-              (cd "$here/package" && ${pkgs.zip}/bin/zip -r "$out" . -x '*.swp' '*~' 'icon-emblem.png')
-              echo "wrote $out"
-            '');
-          };
-        });
-
-      # ── development shell ──────────────────────────────────────────────────
-      devShells = forAllSystems (system:
-        let pkgs = pkgsFor system; in
-        {
-          default = pkgs.mkShell {
-            name = "nixos-generation-explorer-dev";
-            packages = with pkgs; [
-              qt6.qtdeclarative      # qmllint + qmlformat
-              kdePackages.kpackage   # kpackagetool6
-              kdePackages.plasma-sdk # plasmoidviewer
-              quickshell
-              qt6.qtbase
-              qt6.qtsvg
-              cmake
-              pre-commit
-              zip                    # needed by pack.sh
-            ];
-            shellHook = ''
-              pre-commit install -f --install-hooks
-              echo "nixos-generation-explorer dev shell ready"
-              echo "  make help        — list targets (view, install, pack, tag)"
-            '';
-          };
-        });
-
-      # ── integration for NixOS and Home Manager users ──────────────────────
-      overlays.default = final: prev: {
-        nixdatifier = self.packages.${final.stdenv.hostPlatform.system}.nixdatifier;
-      };
+      devShells = each (system:
+        let pkgs = pkgsFor system;
+        in { default = pkgs.mkShell {
+          packages = [ pkgs.python3 pkgs.lua5_4 pkgs.luau pkgs.nixfmt-rfc-style ];
+          PYTHONPATH = "${toString ./.}/backend";
+        }; });
       nixosModules.default = import ./nix/nixos-module.nix self;
-      homeManagerModules.default = import ./nix/home-manager-module.nix self;
-
-      # ── formatter (nixpkgs-fmt via nix fmt) ───────────────────────────────
-      formatter = forAllSystems (system: (pkgsFor system).nixpkgs-fmt);
+      homeManagerModules.default = import ./nix/home-module.nix self;
+      formatter = each (system: (pkgsFor system).nixfmt-rfc-style);
     };
 }

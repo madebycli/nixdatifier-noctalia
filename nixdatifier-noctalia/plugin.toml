@@ -1,0 +1,60 @@
+id = "madebycli/nixdatifier-noctalia"
+name = "Nixdatifier"
+version = "0.1.0"
+plugin_api = 26
+author = "madebycli"
+license = "MIT"
+icon = "snowflake"
+description = "Nix systems, profiles and development environments in Noctalia."
+tags = ["nix", "nixos", "system"]
+dependencies = ["nixdatifier-noctalia"]
+
+[[setting]]
+key = "config_file"
+type = "file"
+label_key = "settings.config"
+description_key = "settings.config.description"
+default = ""
+extensions = [".json"]
+
+[[setting]]
+key = "backend"
+type = "string"
+label_key = "settings.backend"
+default = "nixdatifier-noctalia"
+advanced = true
+
+[[setting]]
+key = "check_interval"
+type = "int"
+label_key = "settings.interval"
+default = 3600
+min = 300
+max = 86400
+
+[[setting]]
+key = "notifications"
+type = "bool"
+label_key = "settings.notifications"
+default = true
+
+[[widget]]
+id = "status"
+entry = "widget.luau"
+
+[[shortcut]]
+id = "open"
+entry = "shortcut.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 740
+height = 700
+placement = "attached"
+position = "auto"
+open_near_click = true
+
+[[service]]
+id = "monitor"
+entry = "service.luau"
