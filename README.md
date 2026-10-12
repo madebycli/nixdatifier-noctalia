@@ -161,9 +161,9 @@ nix develop --command python3 -m unittest discover -s tests -v
 noctalia plugins lint ./nixdatifier-noctalia
 ```
 
-The local suite currently passes 39 tests, including all 18 personal output mappings,
+The local suite currently passes 40 tests, including all 18 personal output mappings,
 multiple-flake configuration, action guards, partial network failures, process
-timeouts, lock behavior, known hashes and Lua-compatible UI contract scenarios.
+timeouts, lock behavior, known hashes and Lua-compatible UI contract scenarios and a real pseudo-terminal password/input test.
 CI additionally compiles the Luau files, builds the Nix package and runs the real
 Noctalia manifest/settings linter. CI status is recorded in [.ai/TESTS.md](.ai/TESTS.md).
 Lua contract tests do not prove Wayland layout or real system activation.

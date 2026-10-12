@@ -40,6 +40,9 @@ def run_job(target, action, argument, confirmed, runner=None):
         except (BackendError, OSError) as exc:
             error = str(exc)
             record.update(status="failed", error=error)
+        except KeyboardInterrupt:
+            error = "Cancelled in terminal"
+            record.update(status="interrupted", error=error)
         finally:
             record["finished"] = time.time()
             atomic_json(path, record)

@@ -19,8 +19,9 @@ Existing update/build/sync/cleanup commands retain their guards and prompts.
 
 Theme binding uses native controls, role tokens, global radius, panel borders,
 transparency and inherited fonts/scaling. Real host/compositor QA is pending.
-Local 39-test suite passes. Nix builds, Luau compilation and native lint are delegated
-to CI; consult [[TESTS]] for observed results. No real system action was run here.
+Local 40-test suite passes. Nix builds, Luau compilation and native lint are delegated
+to CI; consult [[TESTS]] for observed results. The initial package/Luau stage
+passed; the terminal-session correction requires fresh backend/package verification. No real system action was run here.
 
 master baseline: 4847af59fc57196a727ce8d706ea7da625399eba.
 No stable version snapshot or GitHub release has been created.

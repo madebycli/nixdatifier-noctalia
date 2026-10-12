@@ -33,7 +33,9 @@ class Runner:
                 proc = subprocess.Popen(argv, cwd=cwd, env=env,
                                         stdout=subprocess.PIPE if self.log else stdout,
                                         stderr=subprocess.STDOUT if self.log else stderr,
-                                        start_new_session=True)
+                                        # Read-only probes need isolated process groups.
+                                        # Terminal jobs must retain their controlling tty.
+                                        start_new_session=self.log is None)
             except OSError as exc:
                 raise BackendError(f"Cannot start {argv[0]}: {exc}") from exc
             thread = None
@@ -50,11 +52,17 @@ class Runner:
             try:
                 proc.wait(timeout=timeout or self.timeout)
             except subprocess.TimeoutExpired as exc:
-                os.killpg(proc.pid, signal.SIGTERM)
+                if self.log:
+                    proc.terminate()
+                else:
+                    os.killpg(proc.pid, signal.SIGTERM)
                 try:
                     proc.wait(timeout=2)
                 except subprocess.TimeoutExpired:
-                    os.killpg(proc.pid, signal.SIGKILL)
+                    if self.log:
+                        proc.kill()
+                    else:
+                        os.killpg(proc.pid, signal.SIGKILL)
                     proc.wait()
                 raise BackendError(f"{argv[0]} timed out") from exc
             finally:

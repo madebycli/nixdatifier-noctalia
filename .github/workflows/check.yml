@@ -15,10 +15,36 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: cachix/install-nix-action@v31
       - name: Backend tests, UI contracts, Luau compilation and package
         run: nix flake check --print-build-logs
+      - name: Select native lint scope
+        id: scope
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess
+          before = os.environ.get('BEFORE_SHA', '')
+          native = True
+          if os.environ['EVENT_NAME'] == 'push' and re.fullmatch(r'[0-9a-f]{40}', before):
+              exists = subprocess.run(['git', 'cat-file', '-e', before + '^{commit}']).returncode == 0
+              if exists:
+                  paths = subprocess.check_output(['git', 'diff', '--name-only', before, 'HEAD']).decode().splitlines()
+                  native = any(p.startswith('nixdatifier-noctalia/') or p in ('catalog.toml', 'flake.nix', 'flake.lock') for p in paths)
+                  if '.github/workflows/check.yml' in paths:
+                      old = subprocess.check_output(['git', 'show', before + ':.github/workflows/check.yml']).decode()
+                      new = open('.github/workflows/check.yml').read()
+                      command = lambda text: [line.strip() for line in text.splitlines() if 'run: nix run github:noctalia-dev/noctalia/' in line]
+                      native = native or command(old) != command(new)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('native=' + str(native).lower(), file=output)
+          PY
       - name: Native Noctalia manifest and settings lint
+        if: steps.scope.outputs.native == 'true'
         run: nix run github:noctalia-dev/noctalia/546ec1cd6f6ca6c93e2995043a7b89f43ff14ceb -- plugins lint ./nixdatifier-noctalia
       - name: CLI smoke check
         run: nix run . -- --version
