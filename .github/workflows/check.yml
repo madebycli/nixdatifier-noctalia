@@ -38,7 +38,7 @@ jobs:
                   if '.github/workflows/check.yml' in paths:
                       old = subprocess.check_output(['git', 'show', before + ':.github/workflows/check.yml']).decode()
                       new = open('.github/workflows/check.yml').read()
-                      command = lambda text: [line.strip() for line in text.splitlines() if 'run: nix run github:noctalia-dev/noctalia/' in line]
+                      command = lambda text: [line.strip() for line in text.splitlines() if line.strip().startswith('run: nix run github:noctalia-dev/noctalia/')]
                       native = native or command(old) != command(new)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               print('native=' + str(native).lower(), file=output)
