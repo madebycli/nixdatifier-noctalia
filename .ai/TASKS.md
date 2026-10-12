@@ -17,9 +17,17 @@ Implemented:
   direnv metadata, terminal action plans and persisted history.
 - [x] NixOS/Home Manager modules, installer, examples and release policy.
 - [x] Local backend/UI contracts and graph context.
+- [x] Review production modules, package/installer and workflow responsibilities.
+- [x] Split panel lifecycle/controller/layout and add deferred-callback regression coverage.
+- [x] Invalidate same-id target reloads, preserve independent read/plan requests,
+  cancel unconfirmed actions on close and retain generation comparison identity.
+- [x] Bound live read-only output, reduce repeated generation symlink resolution,
+  bound metadata reads and validate malformed configuration types.
 
 Before first stable:
-- [ ] Observe green Nix/Luau/native Noctalia CI for the final source commit.
+- [x] Observe green Nix package, 40 tests, Luau compilation and CLI smoke for eadf36c6.
+- [x] Native Noctalia lint passed in full runs 38217124145 and 38218204416.
+- [ ] Observe the optimization pass's package, Luau and native lint CI checks.
 - [ ] Test actual installed Noctalia on nyx and aether.
 - [ ] Verify native layout, small screens, scale, light/dark/custom palette and reduced animation.
 - [ ] Exercise a second flake, standalone Home Manager and separate user-profile packages.
@@ -33,3 +41,9 @@ Optional upstream parity, not part of an asserted stable baseline:
 - [ ] Store-wide reclaimable-size measurements with explicit scheduling.
 - [ ] Advanced devShell package listings, cache totals and cache clearing.
 - [ ] Generic custom command definitions with a reviewed trust boundary.
+
+Further hardening:
+- [ ] Retention for cache identities and large terminal logs; PID/start-time identity
+  for interrupted history; legacy user-profile alias generation discovery.
+- [ ] Verify direnv authorization against its current content identity rather than
+  inferring trust from allow-file text; retain inspection without evaluation.

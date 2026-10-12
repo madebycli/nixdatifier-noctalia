@@ -30,6 +30,9 @@ def list_generations(target, base=None, running=None, booted=None):
     base = base or profile_path(target)
     running = running or Path("/run/current-system")
     booted = booted or Path("/run/booted-system")
+    selected_closure = base.resolve()
+    running_closure = running.resolve() if target.kind == "nixos" else None
+    booted_closure = booted.resolve() if target.kind == "nixos" else None
     rows = []
     for path in base.parent.glob(base.name + "-*-link"):
         match = re.fullmatch(re.escape(base.name) + r"-(\d+)-link", path.name)
@@ -42,9 +45,9 @@ def list_generations(target, base=None, running=None, booted=None):
             continue
         rows.append({"number": int(match[1]), "closure": str(closure),
                      "date": datetime.fromtimestamp(stamp, timezone.utc).isoformat(),
-                     "selected": closure == base.resolve(),
-                     "running": target.kind == "nixos" and closure == running.resolve(),
-                     "booted": target.kind == "nixos" and closure == booted.resolve()})
+                     "selected": closure == selected_closure,
+                     "running": closure == running_closure,
+                     "booted": closure == booted_closure})
     rows.sort(key=lambda row: row["number"], reverse=True)
     return {"rows": rows, "scope": "local", "profile": str(base),
             "test_build": target.kind == "nixos" and running.exists()

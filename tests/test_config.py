@@ -75,11 +75,30 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(target.installable(), '/tmp/flake#nixosConfigurations."a.b\\\";$(oops)".config.system.build.toplevel')
 
     def test_untrusted_types_and_refs_are_rejected(self):
-        for change in ({"id": None}, {"flake": "-evil"}, {"flake": "path#output"}, {"label": "a\nb"}):
+        for change in ({"id": None}, {"kind": []}, {"adapter": {}}, {"flake": "-evil"}, {"flake": "path#output"}, {"label": "a\nb"}):
             value = dict(id="test", label="Test", kind="nixos", flake="/a", attribute="host")
             value.update(change)
             with self.assertRaises(BackendError):
                 Target.parse(value)
+
+    def test_invalid_config_roots_return_actionable_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            file = Path(tmp) / "targets.json"
+            for value in ([], None, "config", 42):
+                file.write_text(json.dumps(value))
+                with self.assertRaisesRegex(BackendError, "schema_version"):
+                    load_config(str(file))
+
+    def test_invalid_saved_state_is_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            state = home / "nixos-config"
+            state.mkdir()
+            file = state / "state.json"
+            with patch.dict(os.environ, {"XDG_STATE_HOME": str(home)}):
+                for value in ([], {"repository": str(home / "nyx"), "profile": []}):
+                    file.write_text(json.dumps(value))
+                    self.assertEqual(active_profile("nyx", home, home / "missing"), "nyx")
 
     def test_personal_adapter_checks_repository_origin(self):
         with tempfile.TemporaryDirectory() as tmp:

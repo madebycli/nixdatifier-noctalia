@@ -8,7 +8,7 @@ updated: 2026-10-12
 # Verification
 
 Observed locally:
-- 40 Python unittest cases passed, including Lua 5.4 compatible host-contract execution.
+- 45 Python unittest cases passed, including Lua 5.4 compatible host-contract execution.
 - All 18 personal output names verified from a pinned nix-config source fixture.
 - Backend Python compilation passed.
 - Installer Bash syntax passed.
@@ -30,10 +30,21 @@ compilation and packaged CLI smoke check passed, including the terminal-session 
 https://github.com/madebycli/nixdatifier-noctalia/actions/runs/38218542439
 
 Native lint was skipped in that backend/workflow-only run because the frontend
-and actual native lint command were unchanged. Runs 38217124145 and 38218204416
-are still building the pinned Noctalia shell for the real native lint at the time
-of this note. Native lint has NOT been reported as passed. Stable releases always
-run all checks. Current authoritative verification lives in master-context's
-projects/nixdatifier-noctalia/TESTS.md; the Actions pages expose live results.
+and actual native lint command were unchanged. Full runs 38217124145 and 38218204416
+are now confirmed completed successfully, including the real native Noctalia lint.
+https://github.com/madebycli/nixdatifier-noctalia/actions/runs/38218204416
+Baseline main d812a374 passed package/tests/Luau/CLI in run 38218982211.
 
+Optimization review regression coverage:
+- Independent panel queries and action planning can overlap without losing results.
+- Older same-channel callbacks, closed-panel plans and same-id config replies are discarded.
+- Service target loaders reject stale results; delayed ticks use elapsed clock time.
+- Search finds generations older than the first 100; comparison identity survives new entries.
+- Changed comparison selections discard pending results.
+- Output limits stop still-running producers; stderr drains concurrently; descendant-held
+  pipes cannot extend a read request's deadline.
+- Malformed target kinds/adapters/config roots and saved-state profiles are rejected/skipped.
+
+The optimization pass passes 45 local tests; its Nix/Luau/native CI is pending publication.
+Current authoritative verification lives in master-context's projects/nixdatifier-noctalia/TESTS.md.
 Actual host/UI/theme acceptance remains a required check before stable.

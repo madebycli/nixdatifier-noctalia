@@ -19,10 +19,12 @@ Existing update/build/sync/cleanup commands retain their guards and prompts.
 
 Theme binding uses native controls, role tokens, global radius, panel borders,
 transparency and inherited fonts/scaling. Real host/compositor QA is pending.
-Local 40-test suite passes. Nix package build, Luau compilation, all 40 tests and
-packaged CLI smoke passed in CI run 38218542439 for eadf36c6374101b93717c96a1b6d3f12368469d9.
-This includes the controlling-terminal correction. Native Noctalia lint is still
-in progress in earlier runs; consult [[TESTS]]. No real system action was run here.
+Local 45-test suite passes, including deferred UI races and a real controlling-tty test.
+Review split panel lifecycle/controller/layout and bounded live read-only output.
+Production Python/Luau modules remain below 250 lines; the largest is 135 lines.
+Native Noctalia lint passed in full CI runs 38217124145 and 38218204416.
+Baseline main d812a374 also passed package/tests/Luau/CLI in run 38218982211.
+The optimization pass's CI is pending; consult [[TESTS]]. No real system action was run here.
 
 master baseline: 4847af59fc57196a727ce8d706ea7da625399eba.
 No stable version snapshot or GitHub release has been created.

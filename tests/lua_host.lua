@@ -7,6 +7,7 @@ local settings = { ["shell.offline_mode"] = false, ["shell.corner_radius_scale"]
   ["shell.panel.borders"] = true, ["shell.panel.transparency_mode"] = "solid" }
 local target = { id = "nyx-niri", label = "Nyx Niri", kind = "nixos", flake = "/tmp/nix config", attribute = "nyx-niri", host = "nyx", adapter = "madebycli" }
 local responses, lastTree, lastTerminal = {}, nil, nil
+local clock = 1000
 local function canonical(path)
   local parts = {}
   for item in string.gmatch(path, "[^/]+") do
@@ -41,7 +42,7 @@ noctalia = {
   expandPath = function(path) return path end,
   tr = function(key) return key end,
   log = function() end, notify = function() end,
-  nowMs = function() return 1000 end, setUpdateInterval = function() end,
+  nowMs = function() return clock end, setUpdateInterval = function() end,
   togglePanel = function(id) assert(id == "madebycli/nixdatifier-noctalia:panel") end,
   openSettings = function() end, copyToClipboard = function() end,
   runInTerminal = function(command) lastTerminal = command; return true end,
@@ -95,6 +96,7 @@ assert(state.generations and state.updates and state.health, "service must popul
 -- A config reload must work even when the target id did not change.
 onConfigChanged()
 assert(state.generations, "same target reload must refresh")
+local serviceReload, serviceUpdate = onIpc, update
 runEntry("panel.luau")
 onOpen("overview")
 assert(lastTree)
@@ -133,4 +135,10 @@ assert(state.widgetText == "#1", "running generation must take precedence over n
 local b = require(root .. "/lib/backend.luau")
 b.terminal("direnv-allow", "nyx-niri", "a'$(touch nope)")
 assert(string.find(lastTerminal, "'a'\\''$(touch nope)'", 1, true), "terminal argument must be shell quoted")
+local scenarios = assert(originalLoadfile(root .. "/../tests/lua_async.lua"))()
+scenarios({ state = state, set = set, target = target, find = find,
+  tree = function() return lastTree end, responses = responses,
+  serviceReload = serviceReload, serviceUpdate = serviceUpdate,
+  advance = function(ms) clock = clock + ms end,
+  root = root })
 print("Native UI contract scenarios passed")

@@ -25,3 +25,10 @@ updated: 2026-10-12
   jobs. A real pseudo-terminal regression test verifies prompt/input and output capture.
 - D009: Backend-only CI changes do not rebuild Noctalia for unchanged frontend/native
   lint inputs. Native source changes and stable releases still run native lint.
+
+- D010: Split panel lifecycle, interaction controller and layout by responsibility.
+  Request serials are per query channel; target revisions and panel closure invalidate
+  callbacks and unconfirmed plans. Comparison selections use generation numbers.
+- D011: Bound read-only output while the process runs, with concurrent pipe draining.
+  Do not accumulate unbounded temporary files and check their size only after exit.
+  Preserve interactive tty behavior and incrementally decode UTF-8 job output.

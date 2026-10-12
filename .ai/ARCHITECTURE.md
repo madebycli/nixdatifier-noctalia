@@ -9,14 +9,19 @@ updated: 2026-10-12
 
 The frontend consists of four native entries: service, bar widget, shortcut and panel.
 The service shares target-specific state through noctalia.state. Six small view modules
-and four tool subviews build Noctalia-native ui trees. Only the panel owns interaction
-and confirmation routing; components own presentation, backend.luau owns JSON transport.
+and four tool subviews build Noctalia-native ui trees. panel.luau owns entry lifecycle,
+panel-controller.luau owns independent query channels, cancellation and confirmation,
+panel-layout.luau owns header/navigation/confirmation presentation. Components own
+native theme presentation, backend.luau owns JSON transport. Target revisions invalidate
+responses even when the target id stays the same. Service timers use elapsed clock time.
 
 The desktop-independent Python backend separates target configuration, personal adapter,
 action planning, subprocesses, cache/locks, history, generations, flakes, health and tools.
 Read requests use JSON API v1. Dynamic process inputs use argv. Terminal jobs own a
 cross-process mutation lock, private logs and failure-aware command sequencing.
-Read-only probes use isolated process groups. Interactive jobs retain the terminal's
+Read-only probes use isolated process groups. output.py concurrently drains stdout/stderr
+with per-stream byte limits and one deadline, including descendant-held pipes. Generation
+listing resolves selected/running/booted profile identity once per snapshot. Interactive jobs retain the terminal's
 controlling session so sudo and script input work; output is streamed and logged.
 
 Target identity is {id, kind, flake, attribute, host, adapter, profile}. No singleton

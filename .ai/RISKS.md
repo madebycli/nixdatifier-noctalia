@@ -22,3 +22,11 @@ updated: 2026-10-12
 - direnv allow deliberately trusts project code; inspection never evaluates .envrc.
 - Installer preserves an existing plugin copy; manual store-path installations should
   migrate to the Home Manager module for repeatable updates.
+
+- Terminal jobs retain the controlling session. Timeout/cancellation stops the immediate
+  process; independently surviving descendants require terminal/host acceptance testing.
+- Terminal logs and cache identities currently have no byte/age retention budget.
+  Completed job history is capped at 100, but running records use PID liveness only.
+- Legacy user-profile aliases may need an explicit underlying profile path for generation
+  discovery. direnv trust display is metadata-based and can be stale; it is not proof
+  that current .envrc content is authorized.

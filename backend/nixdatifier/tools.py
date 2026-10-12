@@ -64,7 +64,10 @@ def devenv(folder, runner):
     if not path.is_dir():
         raise BackendError("Development directory does not exist")
     envrc = path / ".envrc"
-    config = envrc.read_text(errors="replace")[:65536] if envrc.is_file() else ""
+    config = ""
+    if envrc.is_file():
+        with envrc.open(errors="replace") as stream:
+            config = stream.read(65536)
     # Inspect syntax, never source/evaluate .envrc.
     directives = sorted(set(re.findall(r"^\s*(use\s+\w+|dotenv|source_env)\b", config, re.MULTILINE)))
     layout = path / ".direnv"
@@ -73,7 +76,8 @@ def devenv(folder, runner):
     for permit in data_root.glob("*"):
         if permit.is_file():
             try:
-                allowed = allowed or str(envrc) in permit.read_text(errors="replace")
+                with permit.open(errors="replace") as stream:
+                    allowed = allowed or str(envrc) in stream.read(65536)
             except OSError:
                 pass
     return {"path": str(path), "envrc": envrc.is_file(), "allowed": allowed,

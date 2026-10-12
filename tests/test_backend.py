@@ -99,6 +99,22 @@ class BackendTests(unittest.TestCase):
         with self.assertRaisesRegex(BackendError, "exceeded"):
             Runner(limit=16).run([sys.executable, "-c", "print('x'*32)"])
 
+    def test_output_limit_stops_a_still_running_process(self):
+        code = "import os,time; os.write(1,b'x'*8192); time.sleep(10)"
+        with self.assertRaisesRegex(BackendError, "exceeded"):
+            Runner(limit=16, timeout=0.5).run([sys.executable, "-c", code])
+
+    def test_stderr_is_drained_without_blocking_stdout(self):
+        code = "import os; os.write(2,b'e'*100000); os.write(1,b'done')"
+        result = Runner().run([sys.executable, "-c", code])
+        self.assertEqual(result.stdout, "done")
+        self.assertEqual(result.stderr, "e" * 100000)
+
+    def test_child_held_pipe_cannot_extend_request_deadline(self):
+        code = "import os,time; pid=os.fork(); time.sleep(10) if pid==0 else None"
+        with self.assertRaisesRegex(BackendError, "timed out"):
+            Runner(timeout=0.1).run([sys.executable, "-c", code])
+
     def test_hash_known_vector(self):
         path = self.root / "file"
         path.write_bytes(b"abc")

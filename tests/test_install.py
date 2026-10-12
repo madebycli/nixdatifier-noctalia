@@ -11,7 +11,7 @@ class InstallTests(unittest.TestCase):
     def test_registration_is_idempotent_and_preserves_existing_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             env = dict(os.environ, NOCTALIA_DATA_HOME=tmp)
-            command = ["bash", str(ROOT / "bin/nixdatifier-install-plugin")]
+            command = [str(ROOT / "bin/nixdatifier-install-plugin")]
             first = subprocess.run(command, env=env, capture_output=True, text=True)
             self.assertEqual(first.returncode, 0, first.stderr)
             destination = Path(tmp) / "plugins/nixdatifier-noctalia"

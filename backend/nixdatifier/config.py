@@ -33,11 +33,11 @@ class Target:
             raise BackendError("Invalid target fields") from exc
         if not isinstance(target.id, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,95}", target.id):
             raise BackendError("Target id must be a short, unique identifier")
-        if target.kind not in KINDS or target.adapter not in {"generic", "madebycli"}:
-            raise BackendError("Unsupported target kind or adapter")
         for item in asdict(target).values():
             if not isinstance(item, str) or any(c in item for c in "\0\n\r"):
                 raise BackendError("Target fields must be single-line strings")
+        if target.kind not in KINDS or target.adapter not in {"generic", "madebycli"}:
+            raise BackendError("Unsupported target kind or adapter")
         if target.kind != "profile" and (not target.flake or not target.attribute):
             raise BackendError("Flake targets need a flake and an exact output attribute")
         if "#" in target.flake or target.flake.startswith("-"):
@@ -79,7 +79,8 @@ def active_profile(host=None, home=None, profile_file=None):
     for path in sorted(root.rglob("state.json")):
         try:
             value = json.loads(path.read_text())
-            if value.get("repository") == str(home / host) and value.get("profile") in valid:
+            if (isinstance(value, dict) and value.get("repository") == str(home / host)
+                    and isinstance(value.get("profile"), str) and value["profile"] in valid):
                 return value["profile"]
         except (ValueError, OSError):
             pass
@@ -118,7 +119,7 @@ def load_config(path=None):
         data = json.loads(path.read_text())
     except (ValueError, OSError) as exc:
         raise BackendError(f"Cannot read targets config: {exc}") from exc
-    if data.get("schema_version") != 1 or not isinstance(data.get("targets"), list):
+    if not isinstance(data, dict) or data.get("schema_version") != 1 or not isinstance(data.get("targets"), list):
         raise BackendError("Expected schema_version 1 and a targets array")
     targets = [Target.parse(item) for item in data["targets"]]
     if len({t.id for t in targets}) != len(targets) or not targets:

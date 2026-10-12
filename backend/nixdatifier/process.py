@@ -1,12 +1,14 @@
 """Bounded subprocesses. Dynamic values never pass through a shell."""
 
+import codecs
 import os
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from dataclasses import dataclass
+
+from .output import OutputLimit, capture
 
 
 class BackendError(Exception):
@@ -28,56 +30,68 @@ class Runner:
         if not argv or any(not isinstance(x, str) or "\0" in x for x in argv):
             raise BackendError("Invalid process arguments")
         env = dict(os.environ, LC_ALL="C", GIT_TERMINAL_PROMPT="0")
-        with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
-            try:
-                proc = subprocess.Popen(argv, cwd=cwd, env=env,
-                                        stdout=subprocess.PIPE if self.log else stdout,
-                                        stderr=subprocess.STDOUT if self.log else stderr,
-                                        # Read-only probes need isolated process groups.
-                                        # Terminal jobs must retain their controlling tty.
-                                        start_new_session=self.log is None)
-            except OSError as exc:
-                raise BackendError(f"Cannot start {argv[0]}: {exc}") from exc
-            thread = None
+        try:
+            proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT if self.log else subprocess.PIPE,
+                                    # Interactive jobs must retain their controlling tty.
+                                    start_new_session=self.log is None)
+        except OSError as exc:
+            raise BackendError(f"Cannot start {argv[0]}: {exc}") from exc
+        thread = None
+        if self.log:
+            def tee():
+                decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+                while chunk := os.read(proc.stdout.fileno(), 8192):
+                    self._write(decoder.decode(chunk))
+                self._write(decoder.decode(b"", final=True))
+            thread = threading.Thread(target=tee, daemon=True)
+            thread.start()
+        try:
             if self.log:
-                def tee():
-                    while chunk := os.read(proc.stdout.fileno(), 8192):
-                        text = chunk.decode(errors="replace")
-                        self.log.write(text)
-                        self.log.flush()
-                        sys.stdout.write(text)
-                        sys.stdout.flush()
-                thread = threading.Thread(target=tee, daemon=True)
-                thread.start()
-            try:
                 proc.wait(timeout=timeout or self.timeout)
-            except subprocess.TimeoutExpired as exc:
-                if self.log:
-                    proc.terminate()
-                else:
-                    os.killpg(proc.pid, signal.SIGTERM)
-                try:
-                    proc.wait(timeout=2)
-                except subprocess.TimeoutExpired:
-                    if self.log:
-                        proc.kill()
-                    else:
-                        os.killpg(proc.pid, signal.SIGKILL)
-                    proc.wait()
-                raise BackendError(f"{argv[0]} timed out") from exc
-            finally:
-                if thread:
-                    thread.join(timeout=2)
-                    proc.stdout.close()
-            def tail(stream):
-                stream.seek(0, 2)
-                size = stream.tell()
-                if size > self.limit:
-                    raise BackendError(f"{argv[0]} output exceeded {self.limit} bytes")
-                stream.seek(0)
-                return stream.read().decode(errors="replace")
-            result = Result(tail(stdout), tail(stderr), proc.returncode)
+                out, err = "", ""
+            else:
+                out, err = capture(proc, self.limit, timeout or self.timeout)
+            result = Result(out, err, proc.returncode)
+        except (subprocess.TimeoutExpired, OutputLimit) as exc:
+            self._stop(proc)
+            reason = "timed out" if isinstance(exc, subprocess.TimeoutExpired) else f"output exceeded {self.limit} bytes"
+            raise BackendError(f"{argv[0]} {reason}") from exc
+        except BaseException:
+            self._stop(proc)
+            raise
+        finally:
+            if thread:
+                thread.join(timeout=2)
+            proc.stdout.close()
+            if proc.stderr:
+                proc.stderr.close()
         if check and result.code:
             raise BackendError(result.stderr.strip() or result.stdout.strip()
                                or f"{argv[0]} exited with {result.code}; inspect job log")
         return result
+
+    def _write(self, text):
+        self.log.write(text)
+        self.log.flush()
+        sys.stdout.write(text)
+        sys.stdout.flush()
+
+    def _stop(self, proc):
+        def send(sig):
+            try:
+                if self.log:
+                    proc.send_signal(sig)
+                else:
+                    os.killpg(proc.pid, sig)
+            except ProcessLookupError:
+                pass
+        send(signal.SIGTERM)
+        try:
+            proc.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            send(signal.SIGKILL)
+            proc.wait()
+        # The group can still contain descendants after its leader exited.
+        if not self.log:
+            send(signal.SIGKILL)

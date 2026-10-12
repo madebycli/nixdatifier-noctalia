@@ -161,7 +161,7 @@ nix develop --command python3 -m unittest discover -s tests -v
 noctalia plugins lint ./nixdatifier-noctalia
 ```
 
-The local suite currently passes 40 tests, including all 18 personal output mappings,
+The local suite currently passes 45 tests, including all 18 personal output mappings,
 multiple-flake configuration, action guards, partial network failures, process
 timeouts, lock behavior, known hashes and Lua-compatible UI contract scenarios and a real pseudo-terminal password/input test.
 CI additionally compiles the Luau files, builds the Nix package and runs the real
@@ -172,6 +172,13 @@ This clean native rewrite does not claim complete feature parity with upstream's
 Qt app. Git config snapshots, release-note browsing, deep package metadata,
 store-wide reclaimable-size scans and advanced devShell package inspection are
 tracked separately in [.ai/TASKS.md](.ai/TASKS.md).
+
+## Module boundaries
+
+The panel entry owns lifecycle; `lib/panel-controller.luau` owns query/cancellation
+and confirmation state; `lib/panel-layout.luau` owns native layout. Views remain
+independent. Backend process execution and bounded output capture are separate.
+See [docs/REVIEW.md](docs/REVIEW.md) for the optimization findings and validation.
 
 ## Upstream and project context
 
