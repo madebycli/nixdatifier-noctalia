@@ -28,7 +28,7 @@ Before first stable:
 - [x] Observe green Nix package, 40 tests, Luau compilation and CLI smoke for eadf36c6.
 - [x] Native Noctalia lint passed in full runs 38217124145 and 38218204416.
 - [x] Optimization pass: Nix package, 45 tests and Luau compilation pass in run 38223056672.
-- [ ] Observe package/Luau/native lint/CLI CI for the current nx migration.
+- [x] Observe package/Luau/native lint/CLI CI for the current nx migration (runs 39317318504 and 39317734339).
 - [ ] Test actual installed Noctalia on nyx and aether.
 - [ ] Verify native layout, small screens, scale, light/dark/custom palette and reduced animation.
 - [ ] Exercise a second flake, standalone Home Manager and separate user-profile packages.
@@ -54,4 +54,5 @@ Current migration:
 - [x] Preserve nx build/confirmation/local-lock behavior for all and individual updates.
 - [x] Replace legacy update/sync commands; open the Rust Settings frontend.
 - [x] 49 local tests, including legacy-marker rejection and configured-path/origin guards.
-- [ ] Verify declarative integration and actual plugin/TUI behavior on nyx/aether.
+- [x] Declarative nix-config integration and local four-host evaluation/package checks.
+- [ ] Verify actual plugin/TUI behavior on nyx/aether.

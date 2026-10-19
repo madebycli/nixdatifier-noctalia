@@ -11,7 +11,7 @@ updated: 2026-10-19
 - Lua-compatible contract tests do not establish native rendering or Wayland behavior.
 - System builds and genuine mutation have not been run on the user's hardware.
 - Generic Home Manager activation requires its CLI on PATH.
-- Existing personal scripts contain their own user/origin assumptions; these are retained,
+- The personal adapter validates installed host, repository path and Git origin,
   and can reject execution if the installed machine does not satisfy them.
 - The mutation lock does not serialize independently launched personal shell commands.
 - HTTP/Git upstream checks are bounded and may fail. Failure is never 'up to date'.

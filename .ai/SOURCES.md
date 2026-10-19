@@ -29,3 +29,9 @@ source. The plugin's standalone lock follows nixos-unstable-small.
 Current personal contract: madebycli/nix-config f0ca178ce1cf1722066a7583fb8b2d79e60b1581,
 flake.nix hosts [nyx aether], pkgs/nx/nx.py, pkgs/nixctl/nixctl.sh and pkgs/dots/dots.sh.
 The fixture excludes four CI stand-ins from personal installable targets.
+
+Runtime migration CI: runs 39317318504 (including native Noctalia lint) and
+39317734339 (explicit Rust-TUI alias, unchanged frontend). Declarative integration:
+nix-config main 6b6e6bb34a99a24912a508f03a2079857230b3ee pins plugin runtime
+9dc105baec7c4a98a150fc9eea02ac186a4c05cc; the fixture remains the verified
+two-host output contract from f0ca178, not a claim of actual host deployment.

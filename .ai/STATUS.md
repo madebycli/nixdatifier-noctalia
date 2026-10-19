@@ -19,7 +19,11 @@ The native panel can open the Rust nix-settings-tui TUI in its interactive termi
 Foreign-host activation, unexpected origins and wrong configured paths are rejected.
 
 Local: 49 Python tests passed, including native UI contract scenarios and a real
-controlling-terminal test. Nix/package/Luau/native lint CI for this change is pending.
+controlling-terminal test. Nix package build, all 49 tests, Luau compilation, native Noctalia lint and
+packaged CLI smoke passed in run 39317318504. The explicit Rust-TUI alias change
+passed package/tests/Luau/CLI in run 39317734339; unchanged frontend lint was skipped.
+Integration into nix-config main is at 6b6e6bb34a99a24912a508f03a2079857230b3ee;
+its lock pins plugin runtime 9dc105baec7c4a98a150fc9eea02ac186a4c05cc.
 No real system switch, cleanup, secret decryption or user configuration modification
 was performed. Hardware, Wayland layout, theme and authentication QA remain pending.
 
