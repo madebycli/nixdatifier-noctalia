@@ -34,6 +34,6 @@ updated: 2026-10-19
 
 - Existing explicit personal targets.json entries with removed outputs (e.g. nyx-niri)
   require user migration to nyx/aether; no user file is automatically overwritten.
-- The Settings action requires the new Rust nix-settings package in the user's config.
+- The Settings action requires the new Rust nix-settings-tui package in the user's config.
 - The adapter trusts the installed nx/nixctl configuration for the repository path,
   while still validating exact host/output and origin before personal actions.

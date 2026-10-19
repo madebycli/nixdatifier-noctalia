@@ -42,5 +42,5 @@ Current personal routing uses only nyx/aether plus a separate user package profi
 personal.py parses the installed nx/nixctl REPO/HOST data without sourcing shell
 code; adapters.py validates the selected output, configured path and Git origin.
 System updates and input updates delegate to nx, dotfile actions to dots. The
-Settings action opens the installed Rust nix-settings frontend in the same confirmed
+Settings action opens the installed Rust nix-settings-tui frontend in the same confirmed
 interactive terminal. Generic multi-flake/Home Manager/devShell targets stay distinct.

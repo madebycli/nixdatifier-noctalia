@@ -68,7 +68,7 @@ class PersonalTests(unittest.TestCase):
                  ("clean", "5", ["nx", "clean", "5"]),
                  ("optimize", "", ["nx", "optimise"]), ("rollback", "", ["nx", "rollback"]),
                  ("sync", "", ["dots", "sync"]), ("pull", "", ["nx", "pull"]),
-                 ("settings", "", ["nix-settings"]), ("dot-pull", "", ["dots", "pull"])]
+                 ("settings", "", ["nix-settings-tui"]), ("dot-pull", "", ["dots", "pull"])]
         for action, argument, expected in cases:
             with self.subTest(action=action, argument=argument):
                 commands = plan(self.target, action, argument, Runner())

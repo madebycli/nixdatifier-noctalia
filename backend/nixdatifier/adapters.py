@@ -43,7 +43,7 @@ def madebycli_command(target, action, argument, runner):
             raise BackendError("Choose an exact root input name")
         return ["nx", "update", argument]
     commands = {"optimize": ["nx", "optimise"], "rollback": ["nx", "rollback"],
-                "pull": ["nx", "pull"], "settings": ["nix-settings"],
+                "pull": ["nx", "pull"], "settings": ["nix-settings-tui"],
                 "sync": ["dots", "sync"], "dot-status": ["dots", "status"],
                 "dot-pull": ["dots", "pull"], "dot-push": ["dots", "push"]}
     if action in commands:

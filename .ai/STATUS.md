@@ -15,7 +15,7 @@ saved config-sync state and automatic 18-profile routing are retired.
 
 Updates use nx's local-lock recovery and build/confirmation flow. No automatic
 Git commit, push or login is introduced. User-profile packages remain separate.
-The native panel can open the Rust nix-settings TUI in its interactive terminal.
+The native panel can open the Rust nix-settings-tui TUI in its interactive terminal.
 Foreign-host activation, unexpected origins and wrong configured paths are rejected.
 
 Local: 49 Python tests passed, including native UI contract scenarios and a real

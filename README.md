@@ -127,7 +127,7 @@ targets for another flake still work with the generic adapter. Update old person
 | Keep 5 backups | `nx clean 5` |
 | Rollback / optimize | `nx rollback` / `nx optimise` |
 | Config synchronization | `dots sync` |
-| Open configuration TUI | `nix-settings` in the interactive terminal |
+| Open configuration TUI | `nix-settings-tui` in the interactive terminal |
 
 Normal updates do not commit or push the local lock and require no GitHub login.
 Dotfile pushes remain explicit. The adapter validates the exact local output,
