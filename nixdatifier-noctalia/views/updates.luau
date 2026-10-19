@@ -1,6 +1,6 @@
 local c = require("../lib/components.luau")
 local M = {}
-local modes = { "all", "base", "packages", "kernel", "desktop", "profiles" }
+local modes = { "all", "base", "desktop", "apps" }
 
 function M.render(ctx)
   local target = ctx.target()

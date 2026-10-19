@@ -8,10 +8,10 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .process import BackendError
+from .personal import HOSTS, current_layout, installed_config
 
 KINDS = {"nixos", "home-manager", "devshell", "profile"}
-SUFFIXES = ("", "-mango", "-niri", "-hyprland", "-hyprland-caelestia",
-            "-mango-niri", "-mango-hyprland", "-niri-hyprland", "-all")
+
 
 
 @dataclass(frozen=True)
@@ -65,40 +65,18 @@ class Target:
         raise BackendError("A user profile is not a flake build target")
 
 
-def active_profile(host=None, home=None, profile_file=None):
-    host, home = host or socket.gethostname().split(".")[0], home or Path.home()
-    valid = {host + suffix for suffix in SUFFIXES}
-    profile_file = profile_file or Path("/etc/nixos-config/profile")
-    try:
-        profile = profile_file.read_text().strip()
-        if profile in valid:
-            return profile
-    except OSError:
-        pass
-    root = Path(os.environ.get("XDG_STATE_HOME", home / ".local/state")) / "nixos-config"
-    for path in sorted(root.rglob("state.json")):
-        try:
-            value = json.loads(path.read_text())
-            if (isinstance(value, dict) and value.get("repository") == str(home / host)
-                    and isinstance(value.get("profile"), str) and value["profile"] in valid):
-                return value["profile"]
-        except (ValueError, OSError):
-            pass
-    return host
-
-
 def autodetect():
     host = socket.gethostname().split(".")[0]
     home = Path.home()
     targets = []
-    repo = home / host
-    if host in {"nyx", "aether"} and (repo / "flake.nix").exists():
-        active = active_profile()
-        for machine in (host, "aether" if host == "nyx" else "nyx"):
-            for suffix in SUFFIXES:
-                attr = machine + suffix
-                targets.append(Target(attr, attr, "nixos", str(repo), attr, machine, "madebycli"))
-        targets.sort(key=lambda item: item.attribute != active)
+    configured = installed_config()
+    repo, selected = configured or (home / "nix-config", host)
+    if selected != host:
+        raise BackendError("Installed nx/nixctl HOST differs from this machine")
+    if host in HOSTS and current_layout(repo, host):
+        for machine in (host, *[h for h in HOSTS if h != host]):
+            if current_layout(repo, machine):
+                targets.append(Target(machine, machine, "nixos", str(repo), machine, machine, "madebycli"))
     else:
         for repo in (Path("/etc/nixos"), home / "nixos-config", home / ".config/nixos"):
             if (repo / "flake.nix").exists():

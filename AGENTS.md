@@ -14,8 +14,8 @@ lines; split by behavior rather than manufacturing thin wrappers. Use native
 Noctalia controls, palette tokens and host theme settings. No embedded hex palettes,
 custom QML shell, independent font stack or fixed desktop assumption.
 
-Preserve `madebycli/nix-config` adapters, exact output routing and existing command
-guards. Never infer a selected configuration solely from the hostname. Do not run
+Preserve the current `madebycli/nix-config` nx/nixctl/dots contracts, exact nyx/aether
+output routing and command guards. The old 18-profile matrix is retired. Never infer a selected configuration solely from the hostname. Do not run
 real switching, garbage collection, secret decryption or direnv trust during tests.
 
 Use argv subprocesses. Require explicit confirmation for mutation jobs. Keep

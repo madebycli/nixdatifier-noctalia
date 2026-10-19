@@ -2,7 +2,7 @@
 id: nixdatifier-noctalia-decisions
 type: decisions
 status: current
-updated: 2026-10-12
+updated: 2026-10-19
 ---
 
 # Decisions
@@ -35,3 +35,10 @@ updated: 2026-10-12
 
 - D012: Checkout scripts retain executable Git modes; patch their interpreters in the
   Nix test copy before direct execution, matching the package's normal fixup behavior.
+
+
+- D013: Follow current nix-config outputs rather than reconstructing removed desktop
+  profiles. REPO/HOST come from the same installed nx/nixctl configuration, with a
+  ~/nix-config fallback. Preserve custom paths, exact output/origin checks, and
+  generic multi-flake targets. Keep nx as the transaction/build/confirmation owner;
+  dots owns dotfile synchronization and the Rust TUI owns configuration navigation.

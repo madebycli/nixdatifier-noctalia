@@ -2,7 +2,7 @@
 id: nixdatifier-noctalia-tests
 type: tests
 status: partial-verification
-updated: 2026-10-12
+updated: 2026-10-19
 ---
 
 # Verification
@@ -56,3 +56,14 @@ The corrected test derivation patches checkout shebangs before invoking the scri
 the replacement run above passes the installer regression as well.
 Current authoritative verification lives in master-context's projects/nixdatifier-noctalia/TESTS.md.
 Actual host/UI/theme acceptance remains a required check before stable.
+
+
+## 2026-10-19: current nx integration
+
+49 local unittest cases passed. Coverage includes exactly two personal output
+names from nix-config f0ca178, custom paths with spaces/quotes, literal config
+parsing, conflicting configuration files, obsolete marker/state rejection,
+foreign host/origin/path guards, nx update groups and per-input transaction routing,
+unchanged separate user profiles, Luau-compatible UI contracts and controlling tty.
+Python compilation and diff checks pass. CI for the new source remains pending.
+No actual system activation or desktop/theme acceptance was performed here.

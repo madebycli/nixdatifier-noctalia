@@ -34,7 +34,7 @@ flowchart TD
     Controller --> Terminal["Bestätigter Terminaljob"]
 ```
 
-Die 18 persönlichen Output-Zuordnungen, mehrere Flakes, native Farbrollen und
+Die damaligen 18 persönlichen Output-Zuordnungen (historischer Stand; heute zwei Hosts), mehrere Flakes, native Farbrollen und
 bestehende Aktionsschutzprüfungen bleiben durch die Tests abgedeckt. `master`
 bleibt unverändert upstream; diese Prüfung erzeugt keinen stabilen Release.
 

@@ -2,7 +2,7 @@
 id: nixdatifier-noctalia-tasks
 type: tasks
 status: current
-updated: 2026-10-12
+updated: 2026-10-19
 ---
 
 # Tasks
@@ -12,7 +12,7 @@ Implemented:
 - [x] Clean native main; preserve upstream master.
 - [x] Modular native entries, palette roles, German/English labels.
 - [x] Multi-flake target model and local/foreign host distinction.
-- [x] All 18 personal output mappings and active-profile selection.
+- [x] Current nyx/aether output mappings and installed nx/nixctl configuration selection.
 - [x] Generations, diff, input status, health, secrets metadata, hashes, store inspection,
   direnv metadata, terminal action plans and persisted history.
 - [x] NixOS/Home Manager modules, installer, examples and release policy.
@@ -28,7 +28,7 @@ Before first stable:
 - [x] Observe green Nix package, 40 tests, Luau compilation and CLI smoke for eadf36c6.
 - [x] Native Noctalia lint passed in full runs 38217124145 and 38218204416.
 - [x] Optimization pass: Nix package, 45 tests and Luau compilation pass in run 38223056672.
-- [ ] Observe optimization pass's native lint and packaged CLI smoke completion.
+- [ ] Observe package/Luau/native lint/CLI CI for the current nx migration.
 - [ ] Test actual installed Noctalia on nyx and aether.
 - [ ] Verify native layout, small screens, scale, light/dark/custom palette and reduced animation.
 - [ ] Exercise a second flake, standalone Home Manager and separate user-profile packages.
@@ -48,3 +48,10 @@ Further hardening:
   for interrupted history; legacy user-profile alias generation discovery.
 - [ ] Verify direnv authorization against its current content identity rather than
   inferring trust from allow-file text; retain inspection without evaluation.
+
+Current migration:
+- [x] Support custom my.repoPath through /etc/nixctl.conf without executing shell code.
+- [x] Preserve nx build/confirmation/local-lock behavior for all and individual updates.
+- [x] Replace legacy update/sync commands; open the Rust Settings frontend.
+- [x] 49 local tests, including legacy-marker rejection and configured-path/origin guards.
+- [ ] Verify declarative integration and actual plugin/TUI behavior on nyx/aether.

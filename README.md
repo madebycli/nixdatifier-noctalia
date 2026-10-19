@@ -10,8 +10,8 @@ branch or release is created by an ordinary push.
 
 ## Requirements
 
-- Native Noctalia v5 with **plugin API 26 or newer**, including the Noctalia commit
-  `546ec1cd6f6ca6c93e2995043a7b89f43ff14ceb` pinned by `madebycli/nix-config`.
+- Native Noctalia v5 with **plugin API 26 or newer**. The current nix-config
+  uses the upstream native shell flake; its Greeter remains independent.
 - Linux with Nix and flakes. The Nix package supplies Python and runtime tools.
 - For standalone Home Manager activation: the `home-manager` CLI on `PATH`.
 - For personal-config commands: its existing installed commands and their existing
@@ -54,13 +54,13 @@ nixdatifier-noctalia = {
 ```
 
 Add the contents of [examples/nix-config-module.nix](examples/nix-config-module.nix)
-as a module in `commonModules`. It installs the backend system-wide and the plugin
+as `modules/features/nixdatifier.nix` (or import it from your module list). It installs the backend system-wide and the plugin
 through Home Manager. Empty `targets` uses autodetection, so no host-specific paths
 need to be hardcoded into the module.
 
 ```sh
 nix flake update nixdatifier-noctalia
-sudo nixos-rebuild build --flake .#nyx-niri  # select YOUR current host/profile
+sudo nixos-rebuild build --flake .#nyx  # choose nyx or aether
 ```
 
 The Home Manager module alone also works with a standalone Home Manager config.
@@ -93,8 +93,8 @@ the actual `networking.hostName`, rather than trusting that label.
 
 ```sh
 nixdatifier-noctalia discover /absolute/path/to/another/flake
-nixdatifier-noctalia --config /path/targets.json query generations --target nyx-niri
-nixdatifier-noctalia --config /path/targets.json plan rebuild --target nyx-niri
+nixdatifier-noctalia --config /path/targets.json query generations --target nyx
+nixdatifier-noctalia --config /path/targets.json plan rebuild --target nyx
 ```
 
 Discovery lists output names; it does not overwrite configuration. An explicit
@@ -103,29 +103,37 @@ there if you want to keep it visible.
 
 ## Personal config support
 
-On `nyx` or `aether`, the local `~/HOST` checkout produces all **18** known NixOS
-targets plus a distinct user-profile target. The active profile is selected using
-`/etc/nixos-config/profile`, then matching saved config-sync state, then the host
-default. Mango, Niri, Hyprland, their combinations, `-all` and the Hyprland-only
-Caelestia variant map to the existing CLI flags.
+On `nyx` or `aether`, autodetection reads `REPO` and `HOST` from the installed
+`/etc/nixctl.conf`, shared with `nx` and `nixctl`. Custom `my.repoPath` checkouts
+are supported. Without this file the default is `~/nix-config`. `NX_CONF` or
+`NIXCTL_CONF` can select an explicit test/config file; conflicting files are rejected.
 
-`adapter = "madebycli"` preserves these commands:
+The current personal configuration exposes **two** real targets, `nyx` and `aether`,
+plus a separate user-package profile. CI outputs are not offered as installable hosts.
+Desktop choices live in `hosts/<host>/features.nix`; profile markers, saved
+config-sync state and the old 18-output matrix are no longer used. Existing explicit
+targets for another flake still work with the generic adapter. Update old personal
+`targets.json` entries such as `nyx-niri` to `nyx` and the configured repo path.
+
+`adapter = "madebycli"` delegates to the installed command suite:
 
 | UI operation | Existing command |
 |---|---|
-| Build & switch | `config-update` with exact host/desktop/shell flags |
-| Categorized preview | `nix-updates all/base/packages/kernel/desktop/profiles` |
-| Categorized refresh | `nix-refresh` with the selected category |
-| Keep 5 backups | `nix-clean 5` |
-| Rollback / optimize | `nix-rollback` / `nix-optimize` |
-| Config synchronization | `config-sync`, `save-config`, `script-update` |
+| Build & switch | `nx switch` |
+| Input check | `nx check` (all root inputs) |
+| Refresh all/base/desktop/apps | `nx update` with the selected group |
+| Refresh one input | `nx update INPUT` with build/confirmation/lock recovery |
+| Pull configuration code | `nx pull` with local-lock reconciliation |
+| Keep 5 backups | `nx clean 5` |
+| Rollback / optimize | `nx rollback` / `nx optimise` |
+| Config synchronization | `dots sync` |
+| Open configuration TUI | `nix-settings` in the interactive terminal |
 
-Category scripts apply to the installed active profile, not a merely selected
-alternate profile. The adapter rejects that mismatch. It checks the local host,
-the expected `~/HOST` path, and the actual Git origin. An output for another host
-can be built, but cannot be activated here. Home Manager integrated into NixOS
-continues to be rebuilt as part of the system; standalone Home Manager is a
-different target kind.
+Normal updates do not commit or push the local lock and require no GitHub login.
+Dotfile pushes remain explicit. The adapter validates the exact local output,
+configured checkout and Git origin. A foreign-host output can be built but cannot
+run personal mutations here. User packages remain a distinct target, not a system
+update category. Home Manager integrated into NixOS remains part of its rebuild.
 
 ## Interface and safety
 
@@ -161,7 +169,7 @@ nix develop --command python3 -m unittest discover -s tests -v
 noctalia plugins lint ./nixdatifier-noctalia
 ```
 
-The local suite currently passes 45 tests, including all 18 personal output mappings,
+The local suite currently passes 49 tests, including both current personal outputs,
 multiple-flake configuration, action guards, partial network failures, process
 timeouts, lock behavior, known hashes and Lua-compatible UI contract scenarios and a real pseudo-terminal password/input test.
 CI additionally compiles the Luau files, builds the Nix package and runs the real

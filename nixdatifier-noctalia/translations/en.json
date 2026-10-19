@@ -49,7 +49,7 @@
   "generations.next": "Next boot",
   "updates.available": "flake input updates available",
   "updates.categories": "Personal config update categories",
-  "updates.active": "Category commands apply to the installed active profile. System inputs and user packages remain separate.",
+  "updates.active": "Categories use the configured local host. Check queries all root inputs. User packages remain separate.",
   "updates.empty": "No input check result yet.",
   "mode.all": "All",
   "mode.base": "Base system",
@@ -91,5 +91,8 @@
   "confirm.terminal": "The command runs in your terminal. Existing authentication and confirmation prompts remain active.",
   "confirm.run": "Open terminal & run",
   "confirm.cancel": "Cancel",
-  "terminal.error": "Could not open a terminal."
+  "terminal.error": "Could not open a terminal.",
+  "mode.apps": "Apps",
+  "action.pull": "Pull configuration",
+  "action.settings": "Nix Settings (terminal)"
 }

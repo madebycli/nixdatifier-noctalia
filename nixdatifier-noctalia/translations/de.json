@@ -49,7 +49,7 @@
   "generations.next": "Nächster Start",
   "updates.available": "Flake-Input-Updates verfügbar",
   "updates.categories": "Update-Kategorien deiner Konfiguration",
-  "updates.active": "Kategorie-Befehle gelten für das installierte aktive Profil. System-Inputs und Benutzerpakete bleiben getrennt.",
+  "updates.active": "Kategorien verwenden den konfigurierten lokalen Host. Prüfen fragt alle Root-Inputs ab. Benutzerpakete bleiben getrennt.",
   "updates.empty": "Noch kein Ergebnis der Input-Prüfung.",
   "mode.all": "Alles",
   "mode.base": "Basissystem",
@@ -91,5 +91,8 @@
   "confirm.terminal": "Der Befehl läuft im Terminal. Bestehende Authentifizierungen und Rückfragen bleiben aktiv.",
   "confirm.run": "Im Terminal ausführen",
   "confirm.cancel": "Abbrechen",
-  "terminal.error": "Terminal konnte nicht geöffnet werden."
+  "terminal.error": "Terminal konnte nicht geöffnet werden.",
+  "mode.apps": "Apps",
+  "action.pull": "Konfiguration laden",
+  "action.settings": "Nix Settings (Terminal)"
 }

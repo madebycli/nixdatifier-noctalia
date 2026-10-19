@@ -23,8 +23,8 @@ function M.render(ctx)
       c.button(c.tr("action.rollback"), function() ctx.ask("rollback") end),
     }), ui.row({ gap = 8 }, {
       c.button(c.tr("action.sync"), function() ctx.ask("sync") end),
-      c.button(c.tr("action.save"), function() ctx.ask("save-config") end),
-      c.button(c.tr("action.scripts"), function() ctx.ask("script-update") end),
+      c.button(c.tr("action.pull"), function() ctx.ask("pull") end),
+      c.button(c.tr("action.settings"), function() ctx.ask("settings") end),
     }) }))
   end
   return ui.column({ gap = 12 }, rows)

@@ -5,7 +5,6 @@ import socket
 from pathlib import Path
 
 from .adapters import madebycli_command
-from .config import active_profile
 from .generations import generation_path, local_target, profile_path
 from .process import BackendError
 
@@ -32,17 +31,16 @@ def plan(target, action, argument, runner):
         from .flakes import read_lock
         if argument not in {r["name"] for r in read_lock(target)}:
             raise BackendError("Input is not present in this flake")
+        if target.adapter == "madebycli":
+            return [madebycli_command(target, "refresh-input", argument, runner)]
         return [["nix", "flake", "update", argument, "--flake", str(target.local_path())]]
     if action == "profile-upgrade" and target.kind == "profile":
         return [["nix", "profile", "upgrade", "--profile", str(profile_path(target)), "--all"]]
     if target.adapter == "madebycli" and action in {
-        "rebuild", "refresh", "preview-updates", "clean", "optimize", "rollback", "sync", "save-config", "script-update"
+        "rebuild", "refresh", "preview-updates", "clean", "optimize", "rollback", "sync", "dot-status", "dot-pull", "dot-push", "settings", "pull"
     }:
         if action == "rebuild":
             local_system(target, runner)
-        # Category commands resolve the installed active profile themselves.
-        if action in {"refresh", "preview-updates"} and target.attribute != active_profile():
-            raise BackendError("Category updates apply to the active profile; select it first")
         return [madebycli_command(target, action, argument, runner)]
     if action in {"rebuild", "boot"}:
         local_system(target, runner)

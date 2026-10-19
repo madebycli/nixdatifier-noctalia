@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "targets": [
-    { "id": "nyx-niri", "label": "Nyx · Niri", "kind": "nixos", "flake": "~/nyx", "attribute": "nyx-niri", "host": "nyx", "adapter": "madebycli" },
-    { "id": "aether", "label": "Aether · Mango", "kind": "nixos", "flake": "~/nyx", "attribute": "aether", "host": "aether", "adapter": "madebycli" },
+    { "id": "nyx", "label": "Nyx", "kind": "nixos", "flake": "~/nix-config", "attribute": "nyx", "host": "nyx", "adapter": "madebycli" },
+    { "id": "aether", "label": "Aether · Mango", "kind": "nixos", "flake": "~/nix-config", "attribute": "aether", "host": "aether", "adapter": "madebycli" },
     { "id": "second-system", "label": "Another flake", "kind": "nixos", "flake": "~/other-config", "attribute": "workstation", "host": "workstation" },
     { "id": "standalone-home", "label": "Standalone Home Manager", "kind": "home-manager", "flake": "~/home-config", "attribute": "me@workstation" },
     { "id": "development", "label": "Project devShell", "kind": "devshell", "flake": "~/code/project", "attribute": "default" },

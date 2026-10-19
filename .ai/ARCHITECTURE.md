@@ -2,7 +2,7 @@
 id: nixdatifier-noctalia-architecture
 type: architecture
 status: current
-updated: 2026-10-12
+updated: 2026-10-19
 ---
 
 # Architecture
@@ -36,3 +36,11 @@ No separate QML shell, tray daemon, fixed palette or custom fonts.
 Nix modules package/install the backend and register user plugin data via Home Manager.
 The NixOS module alone requires a path source registration. The interactive installer
 refuses to overwrite an existing plugin. No personal source repo is auto-modified.
+
+
+Current personal routing uses only nyx/aether plus a separate user package profile.
+personal.py parses the installed nx/nixctl REPO/HOST data without sourcing shell
+code; adapters.py validates the selected output, configured path and Git origin.
+System updates and input updates delegate to nx, dotfile actions to dots. The
+Settings action opens the installed Rust nix-settings frontend in the same confirmed
+interactive terminal. Generic multi-flake/Home Manager/devShell targets stay distinct.

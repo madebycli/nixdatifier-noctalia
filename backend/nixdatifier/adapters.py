@@ -3,41 +3,33 @@
 import socket
 from pathlib import Path
 
-from .config import SUFFIXES
+from .personal import HOSTS, current_layout, installed_config
 from .process import BackendError
 
-MODES = {"all", "base", "packages", "kernel", "desktop", "profiles"}
+MODES = {"all", "base", "desktop", "apps"}
 REMOTES = {"https://github.com/madebycli/nix-config.git", "git@github.com:madebycli/nix-config.git"}
-
-
-def madebycli_flags(attribute, host):
-    if host not in {"nyx", "aether"} or attribute not in {host + s for s in SUFFIXES}:
-        raise BackendError("Unknown madebycli host/profile")
-    suffix = attribute[len(host):].lstrip("-")
-    if suffix == "hyprland-caelestia":
-        return ["--" + host, "--hyprland", "--caelestia-shell"]
-    if suffix == "all":
-        return ["--" + host, "--all", "--noctalia"]
-    desktops = suffix.split("-") if suffix else ["mango"]
-    return ["--" + host, *["--" + d for d in desktops], "--noctalia"]
 
 
 def madebycli_command(target, action, argument, runner):
     host = socket.gethostname().split(".")[0]
-    if target.host != host or host not in {"nyx", "aether"}:
-        raise BackendError("Personal commands only run on their own host")
+    if target.kind != "nixos" or target.host != host or host not in HOSTS or target.attribute != host:
+        raise BackendError("Personal commands require the exact local nyx/aether output")
     repo = target.local_path()
-    if repo != (Path.home() / host).resolve():
-        raise BackendError("Personal scripts require the matching ~/nyx or ~/aether checkout")
+    configured = installed_config()
+    expected_repo, expected_host = configured or ((Path.home() / "nix-config").resolve(), host)
+    if repo != expected_repo or expected_host != host or not current_layout(repo, host):
+        raise BackendError("Target must match the installed nx/nixctl repository and host")
     origin = runner.run(["git", "-C", str(repo), "remote", "get-url", "origin"]).stdout.strip()
     if origin not in REMOTES:
         raise BackendError("Unexpected origin for personal config")
     if action == "rebuild":
-        return ["config-update", *madebycli_flags(target.attribute, host)]
+        return ["nx", "switch"]
     if action in {"refresh", "preview-updates"}:
         if argument not in MODES:
             raise BackendError("Unknown update category")
-        return ["nix-refresh" if action == "refresh" else "nix-updates", argument]
+        if action == "preview-updates":
+            return ["nx", "check"]  # nx check intentionally checks every root input.
+        return ["nx", "update", *([] if argument == "all" else [argument])]
     if action == "clean":
         try:
             count = int(argument)
@@ -45,10 +37,15 @@ def madebycli_command(target, action, argument, runner):
             raise BackendError("Keep between 1 and 20 backups") from exc
         if not 1 <= count <= 20:
             raise BackendError("Keep between 1 and 20 backups")
-        return ["nix-clean", str(count)]
-    commands = {"optimize": "nix-optimize", "rollback": "nix-rollback",
-                "sync": "config-sync", "save-config": "save-config",
-                "script-update": "script-update"}
+        return ["nx", "clean", str(count)]
+    if action == "refresh-input":
+        if not argument or argument.startswith("-") or not all(c.isalnum() or c in "_.-" for c in argument):
+            raise BackendError("Choose an exact root input name")
+        return ["nx", "update", argument]
+    commands = {"optimize": ["nx", "optimise"], "rollback": ["nx", "rollback"],
+                "pull": ["nx", "pull"], "settings": ["nix-settings"],
+                "sync": ["dots", "sync"], "dot-status": ["dots", "status"],
+                "dot-pull": ["dots", "pull"], "dot-push": ["dots", "push"]}
     if action in commands:
-        return [commands[action]]
+        return commands[action]
     raise BackendError("This action is not provided by the personal adapter")

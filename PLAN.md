@@ -4,8 +4,8 @@
 
 Ein natives, modular aufgebautes Noctalia-Plugin für mehrere Flakes, Systemprofile,
 Home Manager, Benutzerpakete und Entwicklungsumgebungen. Die persönliche
-`madebycli/nix-config` mit nyx/aether und allen 18 Outputs bleibt vollständig als
-eigener Adapter erhalten. `main` enthält die neueste Entwicklung; `master` bleibt
+`madebycli/nix-config` mit den aktuellen Outputs nyx/aether bleibt als eigener Adapter erhalten. Die
+frühere Matrix mit 18 Desktop-Profilen wird nicht mehr automatisch angeboten. `main` enthält die neueste Entwicklung; `master` bleibt
 Upstream. Erst ein verifizierter Stable-Release erzeugt eine Versionsbranch.
 
 ## Anforderungen
@@ -55,7 +55,8 @@ wesentlichen CPU-/Netzwerk-/Speicherkosten. Ein erster Cache-Miss kann teuer sei
 
 1. Fork, Branches, Registry, persönliche Flake und native API prüfen. Erledigt.
 2. Sauberen `main`-Tree mit modularer Implementierung aufbauen. Erledigt.
-3. Multi-Target- und persönlichen Adapter mit 18 Outputs testen. Erledigt lokal.
+3. Multi-Target-Adapter an nx/nixctl/dots und die zwei aktuellen Host-Outputs
+   anpassen. 49 lokale Tests bestehen; Host-Akzeptanz bleibt erforderlich.
 4. Nix-Pakete, Luau und echten Noctalia-Lint über CI prüfen. Siehe `.ai/TESTS.md`.
 5. Auf nyx/aether Oberfläche, Themes und echte Aktionen prüfen. Noch erforderlich.
 6. Erst danach Stable-Version freigeben und Versionsbranch/Tag erstellen.
